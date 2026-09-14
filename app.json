@@ -1,7 +1,11 @@
 {
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-1662853246746272~2942738932",
+    "ios_app_id": "ca-app-pub-1662853246746272~2942738932"
+  },
   "expo": {
-    "name": "CalcMaster",
-    "slug": "calculator",
+    "name": "NoteCalc Pro",
+    "slug": "notecalc-pro",  
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,13 +24,24 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1662853246746272~2942738932",
+          "iosAppId": "ca-app-pub-1662853246746272~2942738932"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "android": {
-      "package": "com.zaynmiraj.calmaster"
+      "package": "com.zaynmiraj.calmaster",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
     }
   }
 }

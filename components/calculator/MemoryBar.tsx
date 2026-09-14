@@ -1,86 +1,179 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { useCalculator } from '@/context/CalculatorContext';
-import CalculatorButton from './CalculatorButton';
+import * as Haptics from 'expo-haptics';
 
 export default function MemoryBar() {
-  const { theme } = useTheme();
-  const { 
-    memory, 
-    clearMemory, 
-    addToMemory, 
-    subtractFromMemory, 
-    recallMemory 
+  const { theme, isDarkMode } = useTheme();
+  const {
+    memory,
+    clearMemory,
+    addToMemory,
+    subtractFromMemory,
+    recallMemory,
+    hapticsEnabled,
   } = useCalculator();
-  
+
   const hasMemory = memory !== '0';
-  
+
+  const triggerHaptic = () => {
+    if (Platform.OS !== 'web' && hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
+  };
+
+  const memButtons = [
+    { label: 'MC', action: clearMemory, disabled: !hasMemory },
+    { label: 'M+', action: addToMemory, disabled: false },
+    { label: 'M−', action: subtractFromMemory, disabled: false },
+    { label: 'MR', action: recallMemory, disabled: !hasMemory },
+  ];
+
   return (
-    <View style={styles.container}>
-      <View style={styles.buttonsContainer}>
-        <CalculatorButton
-          label="MC"
-          type="memory"
-          onPress={clearMemory}
-          size={60}
-        />
-        <CalculatorButton
-          label="M+"
-          type="memory"
-          onPress={addToMemory}
-          size={60}
-        />
-        <CalculatorButton
-          label="M-"
-          type="memory"
-          onPress={subtractFromMemory}
-          size={60}
-        />
-        <CalculatorButton
-          label="MR"
-          type="memory"
-          onPress={recallMemory}
-          size={60}
-        />
-      </View>
-      
-      {hasMemory && (
-        <View style={[styles.memoryDisplay, { backgroundColor: theme.cardColor }]}>
-          <Text style={[styles.memoryLabel, { color: theme.secondaryTextColor }]}>
-            Memory:
-          </Text>
-          <Text style={[styles.memoryValue, { color: theme.textColor }]}>
-            {memory}
-          </Text>
+    <View style={styles.wrapper}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.035)' : theme.cardColor,
+            borderColor: theme.glassBorder,
+          },
+        ]}
+      >
+        <View style={styles.buttonRow}>
+          {memButtons.map((btn, index) => {
+            const isClickable = !btn.disabled;
+            const isRecalling = hasMemory && btn.label === 'MR';
+
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.memButton,
+                  isRecalling && {
+                    backgroundColor: theme.pillActiveBg,
+                  },
+                ]}
+                onPress={() => {
+                  if (isClickable) {
+                    triggerHaptic();
+                    btn.action();
+                  }
+                }}
+                activeOpacity={0.5}
+                disabled={!isClickable}
+              >
+                <Text
+                  style={[
+                    styles.memButtonText,
+                    {
+                      color: isClickable
+                        ? isRecalling
+                          ? theme.accentColor
+                          : theme.textColor
+                        : theme.mutedTextColor,
+                      fontFamily: isRecalling ? 'Roboto-Bold' : 'Roboto-Medium',
+                    },
+                  ]}
+                >
+                  {btn.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-      )}
+
+        {hasMemory && (
+          <TouchableOpacity
+            style={[
+              styles.activeMemoryTag,
+              {
+                backgroundColor: isDarkMode
+                  ? 'rgba(16, 185, 129, 0.14)'
+                  : 'rgba(16, 185, 129, 0.1)',
+                borderColor: theme.memoryColor,
+              },
+            ]}
+            onPress={() => {
+              triggerHaptic();
+              recallMemory();
+            }}
+            activeOpacity={0.7}
+          >
+            <View
+              style={[
+                styles.memoryJewel,
+                {
+                  backgroundColor: theme.memoryColor,
+                  shadowColor: theme.memoryColor,
+                },
+              ]}
+            />
+            <Text style={[styles.memoryTagText, { color: theme.memoryColor }]}>
+              {memory}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    marginVertical: 4,
+  },
   container: {
-    marginVertical: 8,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  memoryDisplay: {
-    padding: 8,
-    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 18,
+    borderWidth: 1,
   },
-  memoryLabel: {
-    fontSize: 14,
-    fontFamily: 'Roboto-Regular',
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'space-between',
+    marginRight: 6,
   },
-  memoryValue: {
-    fontSize: 16,
-    fontFamily: 'Roboto-Medium',
+  memButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  memButtonText: {
+    fontSize: 13,
+    letterSpacing: 0.8,
+  },
+  activeMemoryTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  memoryJewel: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 6,
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 4,
+      },
+    }),
+  },
+  memoryTagText: {
+    fontSize: 12,
+    fontFamily: 'Roboto-Bold',
   },
 });
