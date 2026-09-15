@@ -40,9 +40,9 @@ export const ADMOB_CONFIG = {
   },
 };
 
-// Frequency capping: at least 3 minutes between interstitial ads
+// Frequency capping: 20 seconds in production, 0 in dev for testing
 let lastInterstitialTime = 0;
-const INTERSTITIAL_COOLDOWN_MS = 180 * 1000; // 3 minutes
+const INTERSTITIAL_COOLDOWN_MS = __DEV__ ? 0 : 20 * 1000;
 
 let interstitial: InterstitialAd | null = null;
 let isInterstitialLoading = false;
@@ -93,15 +93,15 @@ export function preloadInterstitial(): void {
 }
 
 /**
- * Show an Interstitial Ad (e.g. after PDF/Document Export)
- * Respects cooldown timer so users are not overwhelmed.
+ * Show an Interstitial Ad (e.g. after Copy, PNG, PDF, Markdown export)
+ * Respects cooldown timer in production so users are not overwhelmed.
  */
-export function showInterstitialAd(onClosed?: () => void): void {
+export function showInterstitialAd(onClosed?: () => void, force: boolean = false): void {
   const now = Date.now();
   const elapsed = now - lastInterstitialTime;
 
   // Check cooldown
-  if (elapsed < INTERSTITIAL_COOLDOWN_MS) {
+  if (!force && elapsed < INTERSTITIAL_COOLDOWN_MS) {
     console.log(`[AdMob] Interstitial cooldown active (${Math.round((INTERSTITIAL_COOLDOWN_MS - elapsed) / 1000)}s left).`);
     if (onClosed) onClosed();
     return;

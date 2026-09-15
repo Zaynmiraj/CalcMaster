@@ -31,7 +31,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { BannerAdView } from '@/components/ads/BannerAdView';
-import { showRewardedAd } from '@/utils/adMobService';
+import { showRewardedAd, showInterstitialAd } from '@/utils/adMobService';
 
 type AISummaryModalProps = {
   visible: boolean;
@@ -105,6 +105,7 @@ export default function AISummaryModal({ visible, onClose }: AISummaryModalProps
       });
     }
 
+    showInterstitialAd();
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

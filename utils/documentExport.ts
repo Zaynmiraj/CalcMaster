@@ -668,6 +668,7 @@ export const exportNoteAsText = async (data: ExportDocumentData): Promise<Export
 
     if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
       await navigator.clipboard.writeText(body);
+      showInterstitialAd();
       return { success: true, message: 'Calculation sheet copied to clipboard!' };
     }
 
@@ -675,6 +676,7 @@ export const exportNoteAsText = async (data: ExportDocumentData): Promise<Export
       title: data.title,
       message: body,
     });
+    showInterstitialAd();
     return { success: true, message: 'Calculation sheet shared!' };
   } catch (error) {
     console.error('Text export error:', error);

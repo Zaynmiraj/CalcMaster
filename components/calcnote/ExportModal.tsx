@@ -23,6 +23,7 @@ import {
   isPrintAvailable,
   isViewShotAvailable,
 } from '@/utils/documentExport';
+import { showInterstitialAd } from '@/utils/adMobService';
 import {
   FileText,
   Image as ImageIcon,
@@ -84,6 +85,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
         // Open document preview in app - never pops up unprompted text share
         setViewMode('document');
       }
+      showInterstitialAd();
     } finally {
       setLoadingType(null);
     }
@@ -107,6 +109,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
         // Open digital receipt card in app - never pops up unprompted text share
         setViewMode('receipt');
       }
+      showInterstitialAd();
     } finally {
       setLoadingType(null);
     }
@@ -126,6 +129,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
+      showInterstitialAd();
       setFeedbackMsg(res.message);
       setTimeout(() => {
         setFeedbackMsg(null);
@@ -150,6 +154,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
           isDarkMode,
         });
         setFeedbackMsg('PNG receipt downloaded to files!');
+        showInterstitialAd();
         return;
       }
 
@@ -161,6 +166,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
           isDarkMode,
         });
         if (res.success) {
+          showInterstitialAd();
           return;
         }
       }
@@ -174,6 +180,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
         title: `${activeDoc.title} Receipt`,
         message: receipt,
       });
+      showInterstitialAd();
     } finally {
       setSharingReceipt(false);
     }
@@ -192,6 +199,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
           themeAccentColor: theme.accentColor,
           isDarkMode,
         });
+        showInterstitialAd();
         return;
       }
 
@@ -203,6 +211,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
           isDarkMode,
         });
         if (res.success) {
+          showInterstitialAd();
           return;
         }
       }
@@ -216,6 +225,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
         title: `${activeDoc.title} Document`,
         message: receipt,
       });
+      showInterstitialAd();
     } finally {
       setSharingDocument(false);
     }
@@ -239,6 +249,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
       });
     }
 
+    showInterstitialAd();
     setCopiedReceipt(true);
     setTimeout(() => setCopiedReceipt(false), 2000);
   };
