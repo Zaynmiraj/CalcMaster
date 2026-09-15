@@ -137,6 +137,19 @@ export const preprocessExpression = (expr: string): string => {
   // Replace exponent operator ^ with mathjs power
   sanitized = sanitized.replace(/\^/g, '^');
 
+  // 7. Normalize comma list separators and whitespace implicit additions
+  while (/(\d+),(\d{3})\b/.test(sanitized)) {
+    sanitized = sanitized.replace(/(\d+),(\d{3})\b/g, '$1$2');
+  }
+  sanitized = sanitized.replace(/,\s*/g, ' + ');
+  sanitized = sanitized.replace(/(?<=\b\d+(?:\.\d+)?)\s+(?=[$€£¥₹৳]|\b\d)/g, ' + ');
+
+  // Clean redundant adjacent operators
+  sanitized = sanitized.replace(/\+\s*\+/g, '+');
+  sanitized = sanitized.replace(/\+\s*([*/^])/g, '$1');
+  sanitized = sanitized.replace(/([*/^])\s*\+/g, '$1');
+  sanitized = sanitized.replace(/([+\-])\s*\+/g, '$1');
+
   return sanitized;
 };
 

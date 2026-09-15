@@ -130,6 +130,53 @@ export const normalizeNumberStrings = (text: string): string => {
   return res;
 };
 
+const currencyCodes = new Set([
+  'usd', 'eur', 'gbp', 'jpy', 'cad', 'aud', 'chf', 'cny', 'inr', 'brl', 'sgd', 'hkd', 'krw', 'mxn', 'sek', 'nzd',
+  'bdt', 'aed', 'sar', 'kwd', 'qar', 'omr', 'bhd', 'egp',
+]);
+
+const conversionWords = new Set(['to', 'in', 'as']);
+
+const isTermEnd = (token: string, knownVars: Set<string>): boolean => {
+  if (!token) return false;
+  const t = token.toLowerCase();
+  if (/^[$€£¥₹৳]?-?[0-9]+(\.[0-9]+)?%?[$€£¥₹৳]?$/.test(t)) return true;
+  if (/^(line\d+|row\d+|l\d+|#\d+)$/i.test(t)) return true;
+  if (['prev', 'last', 'total', 'sum', 'subtotal'].includes(t)) return true;
+  if (currencyCodes.has(t)) return true;
+  if (t === ')' || t === '!' || t === '%') return true;
+  if (knownVars.has(t)) return true;
+  return false;
+};
+
+const isTermStart = (token: string, knownVars: Set<string>): boolean => {
+  if (!token) return false;
+  const t = token.toLowerCase();
+  if (conversionWords.has(t)) return false;
+  if (currencyCodes.has(t)) return false;
+  if (/^[$€£¥₹৳]?[0-9]+/.test(t)) return true;
+  if (/^(line\d+|row\d+|l\d+|#\d+)$/i.test(t)) return true;
+  if (['prev', 'last', 'total', 'sum', 'subtotal'].includes(t)) return true;
+  if (['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'log', 'ln', 'sqrt', 'cbrt'].includes(t)) return true;
+  if (knownVars.has(t)) return true;
+  return false;
+};
+
+export const insertImplicitAdditions = (tokens: string[], knownVars: Set<string>): string[] => {
+  const result: string[] = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const curr = tokens[i];
+    if (i > 0) {
+      const prev = result[result.length - 1];
+      if (isTermEnd(prev, knownVars) && isTermStart(curr, knownVars)) {
+        result.push('+');
+      }
+    }
+    result.push(curr);
+  }
+  return result;
+};
+
 /**
  * Strips conversational prose and labels while preserving numbers, math, and variables.
  * Fully supports English, Arabic, and Bangla prose and variable names.
@@ -156,6 +203,16 @@ export const extractMathFromProse = (
     trimmed === '#'
   ) {
     return { expression: '', isComment: true };
+  }
+
+  // Pure date header detection (e.g. "September 15, 2026" or "15/09/2026")
+  if (!/[+\-*^%=:]/.test(trimmed)) {
+    if (
+      /^(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s*)?(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{2,4}$/i.test(trimmed) ||
+      /^\d{1,4}[/-]\d{1,2}[/-]\d{1,4}$/.test(trimmed)
+    ) {
+      return { expression: '', isComment: true };
+    }
   }
 
   // Strip colon label or equals sign BEFORE math keyword normalization
@@ -212,6 +269,26 @@ export const extractMathFromProse = (
   // Normalize numbers: strip commas, expand 5k, normalize multilingual digits & words
   text = normalizeNumberStrings(text);
 
+  // Strip subsequent inline labels before numbers (e.g. "item2: 50" -> " 50")
+  text = text.replace(/(?<=\s|^)[a-zA-Z_\u0980-\u09FF\u0600-\u06FF][a-zA-Z0-9_\u0980-\u09FF\u0600-\u06FF\s]*:\s*(?=[0-9$€£¥₹৳])/gu, ' ');
+
+  // Normalize Line N to LineN
+  text = text.replace(/\b(line|row|l)\s*(\d+)\b/gi, '$1$2');
+
+  // Handle "N [item] at [price]" or "N at price" or "N @ price"
+  text = text.replace(/(\b\d+(?:\.\d+)?)\s+(?:[a-zA-Z_\u0980-\u09FF\u0600-\u06FF]+\s+)?(?:@|\bat\b)\s*([$€£¥₹৳]|\b\d)/gi, '$1 * $2');
+  text = text.replace(/(?<=\b\d+(?:\.\d+)?|\))\s*(?:@|\bat\b)\s*(?=[$€£¥₹৳]|\b\d)/gi, ' * ');
+  text = text.replace(/\beach\b/gi, ' ');
+  text = text.replace(/\bwith\b/gi, ' + ');
+
+  // Handle "x" or "X" multiplication between numbers if x is not a defined variable
+  if (!knownVariables.has('x')) {
+    text = text.replace(/(?<=\b\d+(?:\.\d+)?|\))\s*[xX]\s*(?=[$€£¥₹৳]|\b\d)/g, ' * ');
+  }
+
+  // Commas separating items become spaces
+  text = text.replace(/,\s*/g, ' ');
+
   // Replace spoken / natural math words with mathematical operators
   text = text.replace(/\bplus\b/gi, ' + ');
   text = text.replace(/\band\b/gi, ' + ');
@@ -255,7 +332,9 @@ export const extractMathFromProse = (
   const words = text.split(/\s+/);
   const mathTokens: string[] = [];
 
-  for (const w of words) {
+  for (let w of words) {
+    if (!w) continue;
+    w = w.replace(/[,;]+$/, '');
     if (!w) continue;
 
     // Keep numbers and mathematical symbols
@@ -289,7 +368,9 @@ export const extractMathFromProse = (
     // Otherwise, it's conversational prose (e.g. "car", "cost", "internet", "weeks", "tickets") -> IGNORE
   }
 
-  const cleanedExpr = mathTokens.join(' ').trim();
+  // Insert implicit additions between adjacent operands/terms
+  const mathTokensWithAdd = insertImplicitAdditions(mathTokens, knownVariables);
+  const cleanedExpr = mathTokensWithAdd.join(' ').trim();
 
   // Check if expression has recognized variable
   const hasKnownVar = Array.from(knownVariables).some((v) => {

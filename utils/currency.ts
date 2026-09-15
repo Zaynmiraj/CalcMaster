@@ -22,6 +22,7 @@ export const DEFAULT_RATES: CurrencyRateMatrix = {
   NZD: 1.65,
   AED: 3.67,
   SAR: 3.75,
+  BDT: 118.0,
 };
 
 // Common symbols mapping
@@ -31,6 +32,7 @@ export const CURRENCY_SYMBOLS: Record<string, string> = {
   '£': 'GBP',
   '¥': 'JPY',
   '₹': 'INR',
+  '৳': 'BDT',
   'C$': 'CAD',
   'A$': 'AUD',
   'R$': 'BRL',
@@ -135,28 +137,31 @@ export const normalizeCurrencySymbols = (expr: string): string => {
 
   // Handle prefix currency codes like "USD 50" or "EUR 100"
   result = result.replace(
-    /\b(USD|EUR|GBP|JPY|CAD|AUD|CHF|CNY|INR|BRL|SGD|HKD|KRW|MXN|SEK|NZD)\s*(\d+(?:\.\d+)?)\b/gi,
+    /\b(USD|EUR|GBP|JPY|CAD|AUD|CHF|CNY|INR|BRL|SGD|HKD|KRW|MXN|SEK|NZD|BDT|AED|SAR)\s*(\d+(?:\.\d+)?)\b/gi,
     '$2 $1'
   );
 
-  // Replace prefix symbols like $50 or € 100
+  // Replace prefix symbols like $50, € 100, ৳ 500
   result = result.replace(/\$\s*(\d+(\.\d+)?)/g, '$1 USD');
   result = result.replace(/€\s*(\d+(\.\d+)?)/g, '$1 EUR');
   result = result.replace(/£\s*(\d+(\.\d+)?)/g, '$1 GBP');
   result = result.replace(/¥\s*(\d+(\.\d+)?)/g, '$1 JPY');
   result = result.replace(/₹\s*(\d+(\.\d+)?)/g, '$1 INR');
+  result = result.replace(/৳\s*(\d+(\.\d+)?)/g, '$1 BDT');
 
-  // Replace suffix symbols like 50$ or 100€
+  // Replace suffix symbols like 50$, 100€, 500৳
   result = result.replace(/(\d+(\.\d+)?)\s*\$/g, '$1 USD');
   result = result.replace(/(\d+(\.\d+)?)\s*€/g, '$1 EUR');
   result = result.replace(/(\d+(\.\d+)?)\s*£/g, '$1 GBP');
   result = result.replace(/(\d+(\.\d+)?)\s*¥/g, '$1 JPY');
   result = result.replace(/(\d+(\.\d+)?)\s*₹/g, '$1 INR');
+  result = result.replace(/(\d+(\.\d+)?)\s*৳/g, '$1 BDT');
 
   // Replace currency names
   result = result.replace(/(\d+(?:\.\d+)?)\s*(?:dollars?|bucks?)\b/gi, '$1 USD');
   result = result.replace(/(\d+(?:\.\d+)?)\s*(?:euros?)\b/gi, '$1 EUR');
   result = result.replace(/(\d+(?:\.\d+)?)\s*(?:pounds?)\b/gi, '$1 GBP');
+  result = result.replace(/(\d+(?:\.\d+)?)\s*(?:taka|tk)\b/gi, '$1 BDT');
 
   return result;
 };
