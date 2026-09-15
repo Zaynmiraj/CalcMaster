@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,13 @@ import {
   Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage, SUPPORTED_LANGUAGES, SupportedLanguage } from '@/context/LanguageContext';
 import { useCalculator } from '@/context/CalculatorContext';
 import { useHistory } from '@/context/HistoryContext';
+import { useAuth } from '@/context/AuthContext';
+import { logScreenView, AnalyticsEvents } from '@/utils/analyticsService';
 import {
   Moon,
   Sun,
@@ -52,6 +55,13 @@ const CURRENCIES = [
 export default function SettingsScreen() {
   const { theme, isDarkMode, toggleDarkMode } = useTheme();
   const { language, setLanguage, t, isRTL } = useLanguage();
+  const { userId, isAnonymous } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      logScreenView('Settings', 'SettingsScreen');
+    }, [])
+  );
 
   const {
     angleUnit,
@@ -118,6 +128,7 @@ export default function SettingsScreen() {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           }
           clearHistory();
+          AnalyticsEvents.logClearHistory();
         },
       },
     ]);
@@ -719,6 +730,11 @@ export default function SettingsScreen() {
             <Text style={[styles.footerVersionText, { color: theme.secondaryTextColor }]}>
               {t.versionLabel} 1.0.0 • {t.privacyBadge}
             </Text>
+            {userId && (
+              <Text style={[styles.footerVersionText, { color: theme.secondaryTextColor, marginTop: 4 }]}>
+                {isAnonymous ? 'Anonymous User' : 'Authenticated'}: {userId.slice(0, 10)}...
+              </Text>
+            )}
             <TouchableOpacity
               style={[
                 styles.privacyLinkPill,

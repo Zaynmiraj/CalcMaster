@@ -13,6 +13,14 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { StatusBar } from 'expo-status-bar';
 
 import { initializeAdMob } from '@/utils/adMobService';
+import { AuthProvider } from '@/context/AuthContext';
+import {
+  registerBackgroundMessageHandler,
+  initializePushNotifications,
+} from '@/utils/notificationService';
+
+// Register background FCM handler early outside of component tree
+registerBackgroundMessageHandler();
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +34,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     initializeAdMob();
+    const pushCleanupPromise = initializePushNotifications();
+    return () => {
+      pushCleanupPromise.then((cleanup) => cleanup && cleanup());
+    };
   }, []);
 
   useEffect(() => {
@@ -41,10 +53,12 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-        </Stack>
+        <AuthProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+          </Stack>
+        </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

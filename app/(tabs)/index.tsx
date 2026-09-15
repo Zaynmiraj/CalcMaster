@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { useCalculator } from '@/context/CalculatorContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { logScreenView } from '@/utils/analyticsService';
 import Display from '@/components/calculator/Display';
 import Keypad from '@/components/calculator/Keypad';
 import ScientificKeypad from '@/components/calculator/ScientificKeypad';
@@ -20,6 +21,12 @@ export default function WorkspaceScreen() {
   const params = useLocalSearchParams<{ mode?: 'notepad' | 'keypad' }>();
   const insets = useSafeAreaInsets();
   const bottomClearance = Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 12) + 64 + 14;
+
+  useFocusEffect(
+    useCallback(() => {
+      logScreenView('CalcNoteWorkspace', 'WorkspaceScreen');
+    }, [])
+  );
 
   const {
     isScientificMode,

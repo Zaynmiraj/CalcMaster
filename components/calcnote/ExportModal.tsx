@@ -24,6 +24,7 @@ import {
   isViewShotAvailable,
 } from '@/utils/documentExport';
 import { showInterstitialAd } from '@/utils/adMobService';
+import { AnalyticsEvents } from '@/utils/analyticsService';
 import {
   FileText,
   Image as ImageIcon,
@@ -73,6 +74,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
     }
     setLoadingType('pdf');
     try {
+      AnalyticsEvents.logExportNote('pdf');
       if (Platform.OS === 'web') {
         const res = await exportNoteAsPdf({
           title: activeDoc.title,
@@ -97,6 +99,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
     }
     setLoadingType('img');
     try {
+      AnalyticsEvents.logExportNote('png');
       if (Platform.OS === 'web') {
         const res = await exportNoteAsImage(null, {
           title: activeDoc.title,
@@ -121,6 +124,7 @@ export default function ExportModal({ visible, onClose, editorViewRef }: ExportM
     }
     setLoadingType('txt');
     try {
+      AnalyticsEvents.logExportNote('text');
       const res = await exportNoteAsText({
         title: activeDoc.title,
         evaluation,

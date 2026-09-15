@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useHistory, HistoryItem as HistoryItemType } from '@/context/HistoryContext';
@@ -33,6 +33,7 @@ import EmptyState from '@/components/common/EmptyState';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BannerAdView } from '@/components/ads/BannerAdView';
+import { logScreenView } from '@/utils/analyticsService';
 
 type GroupedHistory = {
   title: string;
@@ -43,6 +44,12 @@ export default function HistoryScreen() {
   const router = useRouter();
   const { theme, isDarkMode } = useTheme();
   const { t, isRTL } = useLanguage();
+
+  useFocusEffect(
+    useCallback(() => {
+      logScreenView('PerpetualLedger', 'HistoryScreen');
+    }, [])
+  );
   const {
     clearHistory,
     deleteHistoryItem,

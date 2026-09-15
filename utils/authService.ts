@@ -1,0 +1,100 @@
+import {
+  getAuth,
+  signInAnonymously as fbSignInAnonymously,
+  onAuthStateChanged as fbOnAuthStateChanged,
+  User,
+  Auth,
+} from '@react-native-firebase/auth';
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setAnalyticsUser } from './analyticsService';
+import { isFirebaseAvailable } from './firebase';
+
+const ANON_USER_KEY = '@notecalc_anonymous_uid';
+
+let authInstance: Auth | null = null;
+
+export const getAuthInstance = (): Auth | null => {
+  if (Platform.OS === 'web') return null;
+  if (!authInstance) {
+    try {
+      if (isFirebaseAvailable()) {
+        authInstance = getAuth();
+      }
+    } catch (e) {
+      console.warn('[FirebaseAuth] Failed to get Auth instance:', e);
+    }
+  }
+  return authInstance;
+};
+
+/**
+ * Signs in anonymously to Firebase Auth if not already signed in.
+ * Links anonymous UID with Firebase Analytics for user journey tracking.
+ */
+export const signInAnonymouslyIfNeeded = async (): Promise<User | null> => {
+  if (Platform.OS === 'web') return null;
+
+  try {
+    const auth = getAuthInstance();
+    if (!auth) return null;
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      console.log('[FirebaseAuth] Already signed in anonymously:', currentUser.uid);
+      await setAnalyticsUser(currentUser.uid);
+      return currentUser;
+    }
+
+    console.log('[FirebaseAuth] Initiating anonymous sign-in...');
+    const userCredential = await fbSignInAnonymously(auth);
+    const user = userCredential.user;
+    if (user) {
+      console.log('[FirebaseAuth] Anonymous sign-in success. UID:', user.uid);
+      await AsyncStorage.setItem(ANON_USER_KEY, user.uid);
+      await setAnalyticsUser(user.uid);
+    }
+    return user;
+  } catch (error: any) {
+    console.warn('[FirebaseAuth] Anonymous sign-in failed or not configured:', error?.message || error);
+    return null;
+  }
+};
+
+/**
+ * Gets the current Firebase user.
+ */
+export const getCurrentUser = (): User | null => {
+  if (Platform.OS === 'web') return null;
+  try {
+    const auth = getAuthInstance();
+    return auth ? auth.currentUser : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Subscribes to Firebase Auth state changes.
+ */
+export const subscribeToAuthState = (
+  callback: (user: User | null) => void
+): (() => void) => {
+  if (Platform.OS === 'web') return () => {};
+  try {
+    const auth = getAuthInstance();
+    if (!auth) return () => {};
+
+    return fbOnAuthStateChanged(auth, (user: User | null) => {
+      if (user) {
+        setAnalyticsUser(user.uid);
+      }
+      callback(user);
+    });
+  } catch (err) {
+    console.warn('[FirebaseAuth] Failed to subscribe to auth state:', err);
+    return () => {};
+  }
+};
+
+export type { User };

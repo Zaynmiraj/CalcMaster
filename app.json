@@ -14,7 +14,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.zaynmiraj.calmaster"
+      "bundleIdentifier": "com.zaynmiraj.calmaster",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "web": {
       "bundler": "metro",
@@ -31,13 +32,18 @@
           "androidAppId": "ca-app-pub-1662853246746272~2942738932",
           "iosAppId": "ca-app-pub-1662853246746272~2942738932"
         }
-      ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/analytics",
+      "@react-native-firebase/messaging"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "android": {
       "package": "com.zaynmiraj.calmaster",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
