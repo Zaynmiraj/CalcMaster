@@ -27,6 +27,8 @@ import {
 } from 'lucide-react-native';
 import { getClipboardString } from '@/utils/clipboard';
 import * as Haptics from 'expo-haptics';
+import { BannerAdView } from '@/components/ads/BannerAdView';
+import { showInterstitialAd } from '@/utils/adMobService';
 
 type VoiceDictationModalProps = {
   visible: boolean;
@@ -142,6 +144,7 @@ export default function VoiceDictationModal({
       } else {
         setParsedLines([`# ${text}`, locallyNormalized]);
       }
+      showInterstitialAd();
     } catch (e) {
       console.warn('AI conversion failed:', e);
       setParsedLines([`# ${text}`, normalizeSpokenMath(text)]);
@@ -166,6 +169,7 @@ export default function VoiceDictationModal({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     const mathContent = parsedLines.join('\n');
+    showInterstitialAd();
     onInsertMath(mathContent);
     onClose();
   };
@@ -414,6 +418,9 @@ export default function VoiceDictationModal({
               <Text style={styles.insertBtnText}>Insert into Note</Text>
             </TouchableOpacity>
           </View>
+
+          {/* AdMob Banner */}
+          <BannerAdView style={{ marginTop: 8 }} />
         </View>
       </View>
     </Modal>

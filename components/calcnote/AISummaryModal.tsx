@@ -70,6 +70,7 @@ export default function AISummaryModal({ visible, onClose }: AISummaryModalProps
         language,
       });
       setSummaryData(result);
+      showInterstitialAd();
     } catch (e) {
       console.warn('AI Summary failed', e);
     } finally {
