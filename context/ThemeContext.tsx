@@ -371,8 +371,8 @@ type ThemeContextType = {
 };
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: THEME_PALETTES.cyan.dark,
-  isDarkMode: true,
+  theme: THEME_PALETTES.cyan.light,
+  isDarkMode: false,
   toggleDarkMode: () => {},
   selectedTheme: 'cyan',
   setSelectedTheme: () => {},
@@ -382,7 +382,7 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const systemColorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [selectedTheme, setSelectedThemeState] = useState<ThemeScheme>('cyan');
 
   useEffect(() => {
@@ -398,8 +398,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         if (savedDarkMode !== null) {
           setIsDarkMode(savedDarkMode === 'true');
         } else {
-          // Default to OLED dark
-          setIsDarkMode(true);
+          // Default to light theme
+          setIsDarkMode(false);
         }
       } catch (error) {
         console.error('Error loading theme preferences:', error);
