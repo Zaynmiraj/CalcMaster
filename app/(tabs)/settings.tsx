@@ -746,7 +746,7 @@ export default function SettingsScreen() {
         </ScrollView>
 
         {/* AdMob Adaptive Banner */}
-        <BannerAdView style={{ marginTop: 4, marginBottom: 2 }} />
+        <BannerAdView aboveTabBar style={{ marginTop: 4 }} />
       </View>
     </SafeAreaView>
   );

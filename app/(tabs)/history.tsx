@@ -494,7 +494,7 @@ export default function HistoryScreen() {
         )}
 
         {/* AdMob Adaptive Banner */}
-        <BannerAdView style={{ marginTop: 6, marginBottom: 2 }} />
+        <BannerAdView aboveTabBar style={{ marginTop: 6 }} />
       </View>
     </SafeAreaView>
   );
