@@ -10,7 +10,7 @@ import {
   Platform,
   Share,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage, SUPPORTED_LANGUAGES, SupportedLanguage } from '@/context/LanguageContext';
 import { useCalculator } from '@/context/CalculatorContext';
@@ -52,8 +52,6 @@ const CURRENCIES = [
 export default function SettingsScreen() {
   const { theme, isDarkMode, toggleDarkMode } = useTheme();
   const { language, setLanguage, t, isRTL } = useLanguage();
-  const insets = useSafeAreaInsets();
-  const bottomClearance = Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 12) + 64 + 14;
 
   const {
     angleUnit,
@@ -185,7 +183,7 @@ export default function SettingsScreen() {
         </View>
       )}
 
-      <View style={[styles.container, { paddingBottom: bottomClearance }]}>
+      <View style={styles.container}>
         {/* Header */}
         <View style={[styles.header, isRTL && styles.rtlRow]}>
           <View>
@@ -792,7 +790,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 40,
   },
   section: {
     marginBottom: 24,

@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   listContent: {
-    paddingBottom: 130, // clearance for floating dock
+    paddingBottom: 60,
   },
   sectionContainer: {
     marginBottom: 14,
