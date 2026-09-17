@@ -14,8 +14,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.zaynmiraj.calmaster",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "bundleIdentifier": "com.zaynmiraj.calmaster"
     },
     "web": {
       "bundler": "metro",
@@ -44,7 +43,7 @@
     "android": {
       "package": "com.zaynmiraj.calmaster",
       "versionCode": 4,
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
