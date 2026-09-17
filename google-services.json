@@ -1,33 +1,60 @@
 {
   "project_info": {
-    "project_number": "100000000000",
+    "project_number": "264589749041",
     "project_id": "notecalc-pro",
-    "storage_bucket": "notecalc-pro.appspot.com"
+    "storage_bucket": "notecalc-pro.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:100000000000:android:abcdef0123456789",
+        "mobilesdk_app_id": "1:264589749041:android:eeeb66081923c997edde10",
         "android_client_info": {
           "package_name": "com.zaynmiraj.calmaster"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "264589749041-gdmfd39kto3furv33psoalopil8g496i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zaynmiraj.calmaster",
+            "certificate_hash": "c15004f999cd3a1fe35662c9ba48aa1a87c8f856"
+          }
+        },
+        {
+          "client_id": "264589749041-q3koene3apngqahseh9amb1dr6dndphv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zaynmiraj.calmaster",
+            "certificate_hash": "34152ed21d72db841d3244cd78f018f4e30d4753"
+          }
+        },
+        {
+          "client_id": "264589749041-si1er1qee6ph7es6feaoar7tdhibcjql.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zaynmiraj.calmaster",
+            "certificate_hash": "2372fad095e55ab63c52722833085c8f796f4022"
+          }
+        },
+        {
+          "client_id": "264589749041-87fkmr73lcurj4niebudgbrn3jsdoif3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "REPLACE_WITH_YOUR_FIREBASE_API_KEY"
+          "current_key": "AIzaSyChnqOemeN7RCEfG2hoyqnEUBha2rsi0YU"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "264589749041-87fkmr73lcurj4niebudgbrn3jsdoif3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
