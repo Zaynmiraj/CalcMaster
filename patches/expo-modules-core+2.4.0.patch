@@ -1,0 +1,14 @@
+diff --git a/node_modules/expo-modules-core/android/CMakeLists.txt b/node_modules/expo-modules-core/android/CMakeLists.txt
+index 6574264..fc84c31 100644
+--- a/node_modules/expo-modules-core/android/CMakeLists.txt
++++ b/node_modules/expo-modules-core/android/CMakeLists.txt
+@@ -144,3 +144,9 @@ else()
+     ReactAndroid::react_nativemodule_core
+   )
+ endif()
++
++# 16 KB memory page size support (required for Android 15+ / Google Play)
++target_link_options(${PACKAGE_NAME} PRIVATE
++    -Wl,-z,max-page-size=16384
++    -Wl,-z,common-page-size=16384
++)
